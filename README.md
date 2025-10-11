@@ -1,362 +1,261 @@
-# SQLInjector - Ultimate Master SQL Injection Testing Tool
+# AI Customer Support Agent
 
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Security Testing](https://img.shields.io/badge/security-testing-red.svg)](https://owasp.org/)
+A comprehensive customer support AI agent built with three fundamental components:
+1. **LLM**: DeepSeek for natural language understanding and generation
+2. **Tools**: Model Context Protocol (MCP) for structured tool calling
+3. **Memory**: SQLite database for conversation history and customer context
 
-**⚠️ ETHICAL HACKING TOOL - FOR AUTHORIZED TESTING ONLY ⚠️**
+## Features
 
-## 🎯 Overview
+### 1. LLM Integration (Grok via OpenRouter)
+- Natural language understanding powered by Grok 2
+- Context-aware responses
+- Multi-turn conversations
+- Tool-augmented generation
+- Access to multiple AI models through OpenRouter
 
-SQLInjector is the **ultimate master SQL injection testing tool** that surpasses all existing tools with comprehensive attack vectors, AI-powered analysis, and advanced evasion techniques. This tool combines traditional SQL injection testing with cutting-edge artificial intelligence and multi-vector attack capabilities.
+### 2. MCP Tools
+The agent has access to the following tools:
+- `check_order_status`: Check order status and tracking information
+- `search_knowledge_base`: Search for answers in the knowledge base
+- `create_support_ticket`: Create tickets for complex issues
+- `get_product_info`: Retrieve product details
+- `process_refund`: Handle refund requests
 
-## 🚀 Key Features
+### 3. Memory System
+- **Conversation History**: Stores all customer interactions
+- **Customer Context**: Maintains customer profiles and preferences
+- **Persistent Storage**: SQLite database for reliable data storage
+- **Context Retrieval**: Recalls relevant information for personalized support
 
-### 🧠 AI-Powered Analysis
-- **Machine Learning Models**: Random Forest, Neural Networks, LSTM, BERT integration
-- **Intelligent Vulnerability Assessment**: AI-driven confidence scoring and payload optimization
-- **Automated Pattern Recognition**: Advanced anomaly detection and response analysis
-- **Smart Payload Generation**: Context-aware payload creation based on target characteristics
+## Installation
 
-### 🎯 Multi-Vector Attack Support
-- **HTTP Header Injection**: 12+ header types tested with advanced payloads
-- **Cookie Manipulation**: Session hijacking and authentication bypass
-- **File Upload Attacks**: Webshell deployment and code execution
-- **XML Parameter Pollution**: XXE exploitation and entity injection
-- **JSON Parameter Pollution**: Schema bypass and data extraction
-- **WebSocket Injection**: Real-time connection exploitation
-- **API Parameter Pollution**: REST endpoint vulnerability assessment
-- **GraphQL Injection**: Query manipulation and schema introspection
-
-### 🛡️ Advanced WAF Evasion
-- **15+ Bypass Techniques**: Unicode normalization, encoding methods, payload fragmentation
-- **Timing Manipulation**: Sophisticated delay-based evasion
-- **Dynamic Payload Generation**: Context-aware evasion strategy selection
-- **Steganographic Hiding**: Advanced payload obfuscation methods
-
-### 🗃️ Comprehensive Database Support
-- **Traditional SQL**: MySQL, PostgreSQL, MSSQL, Oracle, SQLite
-- **NoSQL Databases**: MongoDB, CouchDB, Redis, Cassandra
-- **Graph Databases**: Neo4j with Cypher injection
-- **Cloud Platforms**: AWS RDS, Azure SQL, Google Cloud SQL
-
-### 🕵️ Advanced Detection Engine
-- **Blind SQL Injection**: Boolean-based and time-based detection
-- **Second-Order Injection**: Stored payload execution detection
-- **NoSQL Injection**: Document and key-value store exploitation
-- **Error-Based Detection**: Advanced error pattern recognition
-
-### 🎭 Steganography & Obfuscation
-- **Whitespace Steganography**: Hidden payload embedding
-- **Comment Embedding**: Code comment exploitation
-- **DNA Encoding**: Genetic algorithm-based encoding
-- **Fractal Encoding**: Mathematical sequence obfuscation
-- **Multi-Layer Obfuscation**: 6+ encoding layers for maximum stealth
-
-### 💻 Post-Exploitation Framework
-- **File Operations**: Read, write, and execute system files
-- **Command Execution**: Remote command execution capabilities
-- **Privilege Escalation**: Advanced privilege elevation techniques
-- **Backdoor Installation**: Persistent access establishment
-
-### 📊 Advanced Reporting & Forensics
-- **Executive Dashboards**: C-level security posture reporting
-- **Technical Analysis**: Detailed vulnerability assessment reports
-- **Compliance Reporting**: OWASP, PCI-DSS, GDPR, SOX compliance
-- **Forensic Analysis**: Attack reconstruction and evidence collection
-- **Visual Analytics**: Risk heatmaps and attack vector visualization
-
-## 📋 Requirements
-
+1. Install dependencies:
 ```bash
-Python 3.8+
-```
-
-### Core Dependencies
-```bash
-requests>=2.28.0
-beautifulsoup4>=4.11.0
-urllib3>=1.26.0
-asyncio
-aiohttp>=3.8.0
-```
-
-### AI/ML Dependencies
-```bash
-scikit-learn>=1.1.0
-tensorflow>=2.10.0
-torch>=1.12.0
-transformers>=4.21.0
-numpy>=1.21.0
-pandas>=1.4.0
-```
-
-### Reporting Dependencies
-```bash
-matplotlib>=3.5.0
-seaborn>=0.11.0
-plotly>=5.10.0
-jinja2>=3.1.0
-```
-
-### Optional Database Connectors
-```bash
-pymongo>=4.2.0          # MongoDB support
-redis>=4.3.0            # Redis support
-neo4j>=4.4.0            # Neo4j support
-psycopg2>=2.9.0         # PostgreSQL support
-PyMySQL>=1.0.0          # MySQL support
-```
-
-## 🔧 Installation
-
-### 1. Clone Repository
-```bash
-git clone https://github.com/jamwal69/sql.git
-cd sql
-```
-
-### 2. Install Dependencies
-```bash
-# Install core requirements
-pip install -r requirements.txt
-
-# Install optional AI dependencies
-pip install -r requirements-ai.txt
-
-# Install optional database connectors
-pip install -r requirements-db.txt
-```
-
-### 3. Linux Setup (Recommended for Testing)
-```bash
-# Ubuntu/Debian
-sudo apt-get update
-sudo apt-get install python3-pip python3-venv
-
-# Create virtual environment
-python3 -m venv sqlinjector-env
-source sqlinjector-env/bin/activate
-
-# Install dependencies
 pip install -r requirements.txt
 ```
 
-## 🚀 Quick Start
+2. Set up your OpenRouter API key:
+   - Copy `.env.example` to `.env`
+   - Add your OpenRouter API key to `.env`
+   - Get your API key from https://openrouter.ai/keys
 
-### Basic SQL Injection Testing
+```bash
+OPENROUTER_API_KEY=your_actual_api_key_here
+SITE_URL=http://localhost:3000  # Optional
+SITE_NAME=AI Customer Support    # Optional
+```
+
+## Usage
+
+### Basic Usage
+
 ```python
-from sqlinjector import SQLInjector
-from sqlinjector.core.base import ScanConfig
+from agent import CustomerSupportAgent
+import os
 
-# Configure scan
-config = ScanConfig(
-    target_url="http://example.com/vulnerable.php",
-    timeout=10,
-    delay=1,
-    user_agent="SQLInjector/1.0"
+# Initialize the agent
+api_key = os.getenv("OPENROUTER_API_KEY")
+agent = CustomerSupportAgent(
+    api_key=api_key,
+    site_url="http://localhost:3000",  # Optional
+    site_name="AI Customer Support"    # Optional
 )
 
-# Initialize scanner
-scanner = SQLInjector(config)
-
-# Run basic scan
-results = await scanner.scan()
-
-# Display results
-for result in results:
-    if result.vulnerable:
-        print(f"Vulnerability found: {result.injection_point.name}")
-        print(f"Payload: {result.payload}")
-        print(f"Confidence: {result.confidence}")
+# Chat with the agent
+customer_id = "CUST-12345"
+response = agent.chat(customer_id, "What's the status of my order ORD-001?")
+print(response)
 ```
 
-### AI-Powered Analysis
-```python
-from sqlinjector.modules.ai_analyzer import AIVulnerabilityAnalyzer
+### Running the Interactive Demo
 
-# Initialize AI analyzer
-ai_analyzer = AIVulnerabilityAnalyzer(config)
-
-# Perform AI analysis
-ai_results = await ai_analyzer.analyze_vulnerability_with_ai(
-    injection_point, response_data
-)
-
-print(f"AI Confidence: {ai_results.confidence_score}")
-print(f"Recommended Payloads: {ai_results.recommended_payloads}")
+```bash
+python agent.py
 ```
 
-### Multi-Vector Attack
+## Architecture
+
+### Memory Manager
 ```python
-from sqlinjector.modules.multi_vector import MultiVectorAttackEngine
-
-# Initialize multi-vector engine
-multi_engine = MultiVectorAttackEngine(config)
-
-# Execute comprehensive attack
-multi_results = await multi_engine.execute_multi_vector_attack(
-    target_url, injection_points
-)
-
-# Generate report
-report = await multi_engine.generate_comprehensive_report(multi_results)
+class MemoryManager:
+    - save_message()              # Store conversation messages
+    - get_conversation_history()  # Retrieve past conversations
+    - update_customer_context()   # Update customer information
+    - get_customer_context()      # Get customer profile
 ```
 
-### Advanced Reporting
+### MCP Tool Manager
 ```python
-from sqlinjector.modules.reporting import AdvancedReportingEngine
-
-# Initialize reporting engine
-reporter = AdvancedReportingEngine(config)
-
-# Generate executive dashboard
-dashboard = await reporter.generate_executive_dashboard(
-    results, multi_results, ai_predictions
-)
-
-# Export to HTML
-reporter.export_to_html(dashboard, technical_report, visualizations)
+class MCPToolManager:
+    - execute_tool()              # Execute a specific tool
+    - _check_order_status()       # Order tracking tool
+    - _search_knowledge_base()    # Knowledge base search
+    - _create_support_ticket()    # Ticket creation
+    - _get_product_info()         # Product information
+    - _process_refund()           # Refund processing
 ```
 
-## 🎛️ Advanced Configuration
-
-### Custom Payloads
+### Customer Support Agent
 ```python
-config.custom_payloads = [
-    "' OR 1=1--",
-    "'; DROP TABLE users--",
-    "' UNION SELECT version()--"
-]
+class CustomerSupportAgent:
+    - chat()                      # Main chat interface
+    - _call_llm_with_tools()      # LLM with tool calling
 ```
 
-### WAF Evasion
-```python
-config.evasion_techniques = [
-    'unicode_normalization',
-    'double_encoding',
-    'payload_fragmentation',
-    'timing_manipulation'
-]
-```
+## Customization
 
-### AI Model Configuration
+### Adding New Tools
+
+1. Define the tool schema in `MCPToolManager._define_tools()`:
 ```python
-config.ai_models = {
-    'vulnerability_classifier': 'random_forest',
-    'payload_generator': 'neural_network',
-    'sequence_analyzer': 'lstm'
+{
+    "type": "function",
+    "function": {
+        "name": "your_tool_name",
+        "description": "Tool description",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "param1": {
+                    "type": "string",
+                    "description": "Parameter description"
+                }
+            },
+            "required": ["param1"]
+        }
+    }
 }
 ```
 
-## 📊 Usage Examples
-
-### 1. Comprehensive Security Assessment
-```bash
-python -m sqlinjector --target http://example.com --comprehensive --ai-analysis --multi-vector --report-format html
+2. Implement the tool method:
+```python
+def _your_tool_name(self, param1: str) -> Dict:
+    # Your implementation
+    return {"success": True, "result": "..."}
 ```
 
-### 2. Stealth Testing with Evasion
-```bash
-python -m sqlinjector --target http://example.com --stealth --evasion-level high --delay 2
+3. Add to `execute_tool()` method:
+```python
+elif tool_name == "your_tool_name":
+    return self._your_tool_name(arguments["param1"])
 ```
 
-### 3. Database-Specific Testing
-```bash
-python -m sqlinjector --target http://example.com --database mysql --advanced-payloads
+### Integrating Real Systems
+
+Replace the mock implementations with real integrations:
+
+- **Order System**: Connect to your order management API
+- **Knowledge Base**: Integrate with your documentation/FAQ system
+- **Ticketing System**: Connect to Zendesk, Jira, or your ticketing platform
+- **Product Database**: Connect to your product catalog
+- **Payment System**: Integrate with Stripe, PayPal, etc.
+
+### Customizing the System Prompt
+
+Modify `system_prompt` in `CustomerSupportAgent.__init__()` to match your brand voice and policies.
+
+## Advanced Features
+
+### Customer Context Tracking
+The agent automatically tracks:
+- Customer name and email
+- Interaction history
+- Preferences
+- Last interaction timestamp
+
+### Conversation Memory
+- Stores up to 10 recent messages by default
+- Maintains context across sessions
+- Enables personalized responses
+
+### Tool Chaining
+The agent can use multiple tools in sequence to solve complex problems.
+
+## Example Interactions
+
+```
+Customer: What's the status of my order ORD-001?
+Agent: [Uses check_order_status tool]
+       Your order ORD-001 has been shipped! The tracking number is TRK123456, 
+       and it's expected to arrive on October 5th, 2025.
+
+Customer: How do I return a product?
+Agent: [Uses search_knowledge_base tool]
+       You can return items within 30 days of purchase. Items must be unused 
+       and in original packaging. Would you like me to help you start a return?
+
+Customer: Yes, I want to return order ORD-001
+Agent: [Uses process_refund tool]
+       I've initiated the refund process. Your refund ID is REF-20251002143045. 
+       The refund will be processed within 5-7 business days.
 ```
 
-### 4. Compliance Testing
-```bash
-python -m sqlinjector --target http://example.com --compliance owasp --report-format json
-```
+## Database Schema
 
-## 🔒 Security Features
+### conversations table
+- `id`: Primary key
+- `customer_id`: Customer identifier
+- `timestamp`: Message timestamp
+- `role`: Message role (user/assistant/tool)
+- `content`: Message content
+- `metadata`: Additional metadata (JSON)
 
-### Ethical Hacking Safeguards
-- **Authorization Checks**: Built-in consent verification
-- **Rate Limiting**: Automatic request throttling
-- **Logging**: Comprehensive audit trail
-- **Responsible Disclosure**: Vulnerability reporting guidelines
+### customer_context table
+- `customer_id`: Primary key
+- `name`: Customer name
+- `email`: Customer email
+- `preferences`: Customer preferences (JSON)
+- `history_summary`: Summary of past interactions
+- `last_interaction`: Last interaction timestamp
 
-### Advanced Detection Evasion
-- **Anti-Detection**: Sophisticated fingerprint masking
-- **Traffic Camouflage**: Normal user behavior simulation
-- **Distributed Testing**: Multi-source attack simulation
-- **Timing Randomization**: Human-like interaction patterns
+## Error Handling
 
-## 📈 Performance Metrics
+The agent includes:
+- Automatic retry logic for tool execution
+- Graceful fallback to ticket creation
+- Error messages in user-friendly language
+- Logging of all interactions for debugging
 
-- **Detection Rate**: 95%+ vulnerability discovery rate
-- **False Positives**: <2% false positive rate
-- **Speed**: 1000+ requests/minute (configurable)
-- **Coverage**: 50+ injection vectors
-- **Evasion**: 90%+ WAF bypass success rate
+## Security Considerations
 
-## 🤝 Contributing
+1. **API Key Management**: Store API keys securely in environment variables
+2. **Data Privacy**: Customer data is stored locally in SQLite
+3. **Input Validation**: Validate all tool inputs
+4. **Rate Limiting**: Implement rate limiting for API calls
+5. **Access Control**: Add authentication for production use
 
-### Development Setup
-```bash
-# Fork repository
-git clone https://github.com/yourusername/sql.git
+## Performance Tips
 
-# Create feature branch
-git checkout -b feature/new-attack-vector
+1. **Limit Conversation History**: Adjust `limit` parameter in `get_conversation_history()`
+2. **Database Indexing**: Add indexes for frequently queried fields
+3. **Caching**: Cache knowledge base searches
+4. **Async Processing**: Use async/await for tool execution
 
-# Install development dependencies
-pip install -r requirements-dev.txt
+## Troubleshooting
 
-# Run tests
-pytest tests/
+### Common Issues
 
-# Submit pull request
-```
+1. **API Key Error**: Ensure DEEPSEEK_API_KEY is set correctly
+2. **Database Locked**: Close other connections to the database
+3. **Tool Execution Failure**: Check tool implementation and parameters
+4. **Memory Issues**: Clear old conversations periodically
 
-### Adding New Attack Vectors
-1. Create module in `sqlinjector/modules/`
-2. Implement attack vector class
-3. Add detection patterns
-4. Update documentation
-5. Submit pull request
+## Future Enhancements
 
-## 📚 Documentation
+- [ ] Add support for multiple languages
+- [ ] Implement sentiment analysis
+- [ ] Add voice interface
+- [ ] Create web dashboard
+- [ ] Add analytics and reporting
+- [ ] Implement A/B testing for responses
+- [ ] Add escalation workflows
+- [ ] Implement auto-categorization of issues
 
-- **API Reference**: [docs/api.md](docs/api.md)
-- **Attack Vectors**: [docs/attack-vectors.md](docs/attack-vectors.md)
-- **AI Models**: [docs/ai-models.md](docs/ai-models.md)
-- **Configuration**: [docs/configuration.md](docs/configuration.md)
-- **Examples**: [examples/](examples/)
+## License
 
-## 🛡️ Disclaimer
+MIT License - Feel free to modify and use for your needs.
 
-**THIS TOOL IS FOR AUTHORIZED SECURITY TESTING ONLY**
+## Support
 
-- Only use on systems you own or have explicit permission to test
-- Unauthorized use is illegal and unethical
-- Authors are not responsible for misuse
-- Follow responsible disclosure practices
-- Comply with local laws and regulations
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🏆 Recognition
-
-This tool represents the pinnacle of SQL injection testing capabilities, combining:
-- **Traditional Techniques** with **Modern AI**
-- **Comprehensive Coverage** with **Precise Detection**
-- **Advanced Evasion** with **Responsible Testing**
-- **Technical Excellence** with **Practical Utility**
-
-**The Ultimate Master Tool that surpasses all existing SQL injection tools.**
-
-## 📧 Contact
-
-- **GitHub**: [https://github.com/jamwal69/sql](https://github.com/jamwal69/sql)
-- **Issues**: [GitHub Issues](https://github.com/jamwal69/sql/issues)
-- **Security**: security@example.com
-
----
-
-**⚡ Built for ethical hackers, penetration testers, and security researchers who demand the ultimate in SQL injection testing capabilities. ⚡**
+For issues and questions, please create a support ticket or contact the development team.

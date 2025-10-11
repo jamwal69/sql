@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Customer Support Agent Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            overflow-y: auto;
+            position: fixed;
+            height: 100vh;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .sidebar h2 {
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            border-bottom: 1px solid #34495e;
+            padding-bottom: 10px;
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar li {
+            margin-bottom: 5px;
+        }
+
+        .sidebar a {
+            color: #ecf0f1;
+            text-decoration: none;
+            display: block;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        .sidebar a:hover, .sidebar a.active {
+            background: #34495e;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 40px;
+            max-width: calc(100% - 280px);
+        }
+
+        .content-section {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .content-section h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .content-section h2 {
+            color: #34495e;
+            margin: 30px 0 15px 0;
+        }
+
+        .content-section h3 {
+            color: #7f8c8d;
+            margin: 25px 0 10px 0;
+        }
+
+        .content-section p {
+            margin-bottom: 15px;
+        }
+
+        .content-section pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin: 15px 0;
+            border-left: 4px solid #3498db;
+        }
+
+        .content-section code {
+            background: #f1f2f6;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .content-section blockquote {
+            border-left: 4px solid #bdc3c7;
+            padding-left: 15px;
+            margin: 15px 0;
+            color: #7f8c8d;
+        }
+
+        .content-section ul, .content-section ol {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+
+        .content-section li {
+            margin-bottom: 5px;
+        }
+
+        .content-section table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .content-section th, .content-section td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .content-section th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .search-container {
+            margin-bottom: 30px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .emoji {
+            font-size: 1.2em;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            .container {
+                flex-direction: column;
+            }
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 4px;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <h2>📚 Documentation</h2>
+            <ul>
+                <li><a href="#readme" onclick="showSection('readme')">README</a></li>
+                <li><a href="#quickstart" onclick="showSection('quickstart')">Quick Start</a></li>
+                <li><a href="#enhanced-agent" onclick="showSection('enhanced-agent')">Enhanced Agent</a></li>
+                <li><a href="#architecture" onclick="showSection('architecture')">Architecture</a></li>
+                <li><a href="#deployment" onclick="showSection('deployment')">Deployment</a></li>
+                <li><a href="#security" onclick="showSection('security')">Security</a></li>
+                <li><a href="#wix-integration" onclick="showSection('wix-integration')">Wix Integration</a></li>
+                <li><a href="#website-integration" onclick="showSection('website-integration')">Website Integration</a></li>
+                <li><a href="#template-system" onclick="showSection('template-system')">Template System</a></li>
+                <li><a href="#test-results" onclick="showSection('test-results')">Test Results</a></li>
+                <li><a href="#troubleshooting" onclick="showSection('troubleshooting')">Troubleshooting</a></li>
+                <li><a href="#hosting" onclick="showSection('hosting')">Hosting Guide</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="🔍 Search documentation..." onkeyup="searchContent(this.value)">
+            </div>
+
+            <!-- README Section -->
+            <section id="readme" class="content-section active">
+                <h1>🤖 AI Customer Support Agent</h1>
+                <p>A comprehensive customer support AI agent built with three fundamental components:</p>
+                <ol>
+                    <li><strong>LLM</strong>: DeepSeek for natural language understanding and generation</li>
+                    <li><strong>Tools</strong>: Model Context Protocol (MCP) for structured tool calling</li>
+                    <li><strong>Memory</strong>: SQLite database for conversation history and customer context</li>
+                </ol>
+
+                <h2>Features</h2>
+                <h3>1. LLM Integration (Grok via OpenRouter)</h3>
+                <ul>
+                    <li>Natural language understanding powered by Grok 2</li>
+                    <li>Context-aware responses</li>
+                    <li>Multi-turn conversations</li>
+                    <li>Tool-augmented generation</li>
+                    <li>Access to multiple AI models through OpenRouter</li>
+                </ul>
+
+                <h3>2. MCP Tools</h3>
+                <p>The agent has access to the following tools:</p>
+                <ul>
+                    <li><code>check_order_status</code>: Check order status and tracking information</li>
+                    <li><code>search_knowledge_base</code>: Search for answers in the knowledge base</li>
+                    <li><code>create_support_ticket</code>: Create tickets for complex issues</li>
+                    <li><code>get_product_info</code>: Retrieve product details</li>
+                    <li><code>process_refund</code>: Handle refund requests</li>
+                </ul>
+
+                <h3>3. Memory System</h3>
+                <ul>
+                    <li><strong>Conversation History</strong>: Stores all customer interactions</li>
+                    <li><strong>Customer Context</strong>: Maintains customer profiles and preferences</li>
+                    <li><strong>Persistent Storage</strong>: SQLite database for reliable data storage</li>
+                    <li><strong>Context Retrieval</strong>: Recalls relevant information for personalized support</li>
+                </ul>
+
+                <h2>Installation</h2>
+                <ol>
+                    <li>Install dependencies:
+                        <pre><code>pip install -r requirements.txt</code></pre>
+                    </li>
+                    <li>Set up your OpenRouter API key:
+                        <ul>
+                            <li>Copy <code>.env.example</code> to <code>.env</code></li>
+                            <li>Add your OpenRouter API key to <code>.env</code></li>
+                            <li>Get your API key from <a href="https://openrouter.ai/keys">https://openrouter.ai/keys</a></li>
+                        </ul>
+                        <pre><code>OPENROUTER_API_KEY=your_actual_api_key_here
+SITE_URL=http://localhost:3000  # Optional
+SITE_NAME=AI Customer Support    # Optional</code></pre>
+                    </li>
+                </ol>
+
+                <h2>Usage</h2>
+                <h3>Basic Usage</h3>
+                <pre><code>from agent import CustomerSupportAgent
+import os
+
+# Initialize the agent
+api_key = os.getenv("OPENROUTER_API_KEY")
+agent = CustomerSupportAgent(
+    api_key=api_key,
+    site_url="http://localhost:3000",  # Optional
+    site_name="AI Customer Support"    # Optional
+)
+
+# Chat with the agent
+customer_id = "CUST-12345"
+response = agent.chat(customer_id, "What's the status of my order ORD-001?")
+print(response)</code></pre>
+
+                <h3>Running the Interactive Demo</h3>
+                <pre><code>python agent.py</code></pre>
+            </section>
+
+            <!-- Quick Start Section -->
+            <section id="quickstart" class="content-section">
+                <h1>🚀 Quick Start Guide</h1>
+                <p>Complete guide to deploy your AI Customer Support system with website and WhatsApp integration.</p>
+
+                <h2>📋 Prerequisites</h2>
+                <ul>
+                    <li>Python 3.11+</li>
+                    <li>Docker & Docker Compose (for production)</li>
+                    <li>OpenRouter API Key (for AI)</li>
+                    <li>Twilio Account (for WhatsApp)</li>
+                    <li>Domain name (optional, for production)</li>
+                </ul>
+
+                <h2>⚡ Quick Setup (5 Minutes)</h2>
+                <h3>1. Install Dependencies</h3>
+                <pre><code>pip install -r requirements.txt</code></pre>
+
+                <h3>2. Configure Environment Variables</h3>
+                <p>Create <code>.env</code> file:</p>
+                <pre><code># AI Configuration
+OPENROUTER_API_KEY=your_openrouter_api_key_here
+
+# Security
+JWT_SECRET=your_super_secret_jwt_key_change_this_in_production
+
+# Twilio (for WhatsApp)
+TWILIO_ACCOUNT_SID=your_twilio_account_sid
+TWILIO_AUTH_TOKEN=your_twilio_auth_token
+TWILIO_WHATSAPP_NUMBER=whatsapp:+14155238886</code></pre>
+
+                <h3>3. Initialize Database</h3>
+                <pre><code>python migrate_db.py</code></pre>
+
+                <h3>4. Test the Agent (Optional)</h3>
+                <pre><code>python agentic_ai.py</code></pre>
+            </section>
+
+            <!-- Enhanced Agent Section -->
+            <section id="enhanced-agent" class="content-section">
+                <h1>Enhanced AI Customer Support Agent</h1>
+                <p>🚀 <strong>Production-Ready Customer Support AI with RAG, Advanced Tools, and Process Handling</strong></p>
+
+                <h2>✨ Key Features</h2>
+                <h3>1. RAG (Retrieval-Augmented Generation) System</h3>
+                <ul>
+                    <li>📚 Complete dealer and company policy database</li>
+                    <li>🔍 Semantic search for accurate policy information</li>
+                    <li>📦 Product knowledge base with specifications</li>
+                    <li>🐛 Known issues tracking and proactive notifications</li>
+                    <li>✅ Never makes up policy information</li>
+                </ul>
+
+                <h3>2. Advanced Memory System</h3>
+                <ul>
+                    <li><strong>Episodic Memory</strong>: Full conversation history</li>
+                    <li><strong>Semantic Memory</strong>: Customer profiles, preferences, loyalty tiers</li>
+                    <li><strong>Support History</strong>: Previous issues and resolutions</li>
+                    <li>💭 Sentiment tracking across interactions</li>
+                </ul>
+
+                <h3>3. Comprehensive MCP Tools</h3>
+                <p>The agent has access to 12+ specialized tools:</p>
+                <ul>
+                    <li>✅ <code>check_order_status</code> - Real-time order tracking</li>
+                    <li>📋 <code>search_policies_rag</code> - RAG-powered policy search</li>
+                    <li>📦 <code>search_product_knowledge</code> - Product info and troubleshooting</li>
+                    <li>🐛 <code>check_known_issues</code> - Proactive bug notifications</li>
+                    <li>👤 <code>get_customer_profile</code> - Loyalty and preferences</li>
+                    <li>📦 <code>get_customer_orders</code> - Order history</li>
+                    <li>↩️ <code>initiate_return</code> - Return processing</li>
+                    <li>💰 <code>process_price_match</code> - Price match guarantee</li>
+                    <li>🎫 <code>create_support_ticket</code> - Escalation handling</li>
+                    <li>🎁 <code>apply_courtesy_adjustment</code> - Service recovery</li>
+                    <li>🔧 <code>schedule_installation</code> - Service scheduling</li>
+                    <li>⭐ <code>check_loyalty_benefits</code> - Rewards info</li>
+                </ul>
+            </section>
+
+            <!-- Architecture Section -->
+            <section id="architecture" class="content-section">
+                <h1>🌐 Website Integration Architecture</h1>
+                <h2>📊 System Overview</h2>
+                <p>The architecture shows how the AI agent connects to your website to fetch real customer data.</p>
+
+                <h3>Data Flow</h3>
+                <h4>Scenario 1: Website Chat</h4>
+                <ol>
+                    <li>Customer logs in to website</li>
+                    <li>Opens chat widget</li>
+                    <li>JWT token includes email</li>
+                    <li>Agent receives: email="sarah@example.com"</li>
+                    <li>website_integration.get_customer_profile("sarah@example.com")</li>
+                    <li>Fetches from your database/API</li>
+                    <li>Returns customer data</li>
+                    <li>Agent: "Hey Sarah! I can see you've been a customer for 2 years..."</li>
+                </ol>
+
+                <h4>Scenario 2: WhatsApp</h4>
+                <ol>
+                    <li>Customer messages: whatsapp:+1234567890</li>
+                    <li>Twilio webhook receives message</li>
+                    <li>Agent receives: phone="+1234567890"</li>
+                    <li>website_integration.get_customer_profile(phone="+1234567890")</li>
+                    <li>Fetches from your database/API</li>
+                    <li>Agent: "Hey Sarah! How can I help you today?"</li>
+                </ol>
+            </section>
+
+            <!-- Deployment Section -->
+            <section id="deployment" class="content-section">
+                <h1>🚀 Production Deployment & Integration Guide</h1>
+                <h2>🌐 Website Integration</h2>
+                <h3>Architecture Overview</h3>
+                <pre><code>Your Website (Frontend)
+    ↓ (HTTP/WebSocket)
+Backend API Server (Flask/FastAPI)
+    ↓ (Function calls)
+Agentic AI Agent
+    ↓ (Tools)
+Database + RAG System</code></pre>
+
+                <h3>Step 1: Create Backend API Server</h3>
+                <p>Production-ready FastAPI server with authentication, WebSocket support, JWT authentication, rate limiting, CORS enabled, session management.</p>
+
+                <h3>Step 2: Frontend Integration</h3>
+                <h4>Option A: Chat Widget (Embedded)</h4>
+                <pre><code>&lt;!-- Add to your website --&gt;
+&lt;script src="https://yoursite.com/chat-widget.js"&gt;&lt;/script&gt;
+&lt;div id="support-chat"&gt;&lt;/div&gt;</code></pre>
+
+                <h4>Option B: Dedicated Page</h4>
+                <p>yoursite.com/support</p>
+
+                <h4>Option C: API Integration</h4>
+                <pre><code>fetch('https://api.yoursite.com/chat', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer USER_TOKEN',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    message: 'Where is my order?'
+  })
+})</code></pre>
+            </section>
+
+            <!-- Security Section -->
+            <section id="security" class="content-section">
+                <h1>🔒 Security Guide for RimTyres</h1>
+                <h2>⚠️ Your Concern is Valid!</h2>
+                <p>You're right to worry! Storing API keys in <code>.env</code> files <strong>can</strong> be risky, especially for a business handling real payments.</p>
+
+                <h2>🛡️ SOLUTION: Multi-Layer Security</h2>
+                <p>5 security layers from basic to enterprise-level:</p>
+
+                <h3>🔐 LAYER 1: Basic Security (Minimum Required)</h3>
+                <h4>✅ What You MUST Do:</h4>
+                <h5>1. Protect .env File</h5>
+                <pre><code>echo ".env" >> .gitignore
+echo "*.env" >> .gitignore
+echo ".env.*" >> .gitignore</code></pre>
+
+                <h5>2. File Permissions</h5>
+                <pre><code>icacls .env /inheritance:r /grant:r "%USERNAME%:R"</code></pre>
+
+                <h5>3. Read-Only API Keys in Wix</h5>
+                <p>When creating Wix API keys:</p>
+                <ul>
+                    <li>✅ Enable: Contacts (Read), Orders (Read), Products (Read)</li>
+                    <li>❌ Disable: Write, Delete, Manage permissions</li>
+                    <li>✅ Scope: Only what's needed</li>
+                </ul>
+            </section>
+
+            <!-- Wix Integration Section -->
+            <section id="wix-integration" class="content-section">
+                <h1>🛞 RIMTYRES WIX INTEGRATION - COMPLETE!</h1>
+                <h2>✅ What You Have Now</h2>
+                <p>A <strong>complete integration system</strong> that connects your AI WhatsApp agent to your <strong>existing RimTyres Wix website</strong> to fetch real customer data, orders, and tyre inventory!</p>
+
+                <h3>📦 New Files Created for RimTyres</h3>
+                <h4>1. wix_integration.py (600+ lines)</h4>
+                <p><strong>Complete Wix API integration for your RimTyres store</strong></p>
+                <ul>
+                    <li>✅ Fetch customers by phone number (for WhatsApp)</li>
+                    <li>✅ Fetch customers by email</li>
+                    <li>✅ Get order history</li>
+                    <li>✅ Check order status</li>
+                    <li>✅ Search tyre products</li>
+                    <li>✅ Check stock levels</li>
+                    <li>✅ Get shipping/billing addresses</li>
+                    <li>✅ Payment status tracking</li>
+                </ul>
+
+                <h4>2. WIX_SETUP_GUIDE.md</h4>
+                <p><strong>Complete step-by-step guide to connect to your Wix store</strong></p>
+                <ul>
+                    <li>✅ How to get Wix API credentials</li>
+                    <li>✅ Configuration instructions</li>
+                    <li>✅ Testing procedures</li>
+                    <li>✅ Example WhatsApp conversations</li>
+                    <li>✅ Security best practices</li>
+                    <li>✅ Troubleshooting</li>
+                </ul>
+            </section>
+
+            <!-- Website Integration Section -->
+            <section id="website-integration" class="content-section">
+                <h1>🌐 WEBSITE INTEGRATION GUIDE</h1>
+                <h2>🎯 Connect Your Agent to Your Website</h2>
+                <p>This guide shows you how to connect your AI agent to your actual website to fetch <strong>real customer data</strong> instead of test data.</p>
+
+                <h3>📋 Integration Options</h3>
+                <p>Your agent supports <strong>5 integration methods</strong>:</p>
+                <ol>
+                    <li><strong>Direct Database</strong> - Connect directly to your website's database (MySQL, PostgreSQL)</li>
+                    <li><strong>REST API</strong> - Connect to your website's API endpoints</li>
+                    <li><strong>WooCommerce</strong> - Built-in WooCommerce integration</li>
+                    <li><strong>Shopify</strong> - Built-in Shopify integration</li>
+                    <li><strong>Custom</strong> - Create custom integration for any platform</li>
+                </ol>
+
+                <h3>🚀 Quick Start</h3>
+                <h4>Step 1: Choose Your Integration Method</h4>
+                <h5>Option A: Direct Database Connection (Fastest)</h5>
+                <pre><code>WEBSITE_DB_TYPE=mysql
+WEBSITE_DB_HOST=localhost
+WEBSITE_DB_PORT=3306
+WEBSITE_DB_NAME=your_ecommerce_db
+WEBSITE_DB_USER=your_user
+WEBSITE_DB_PASSWORD=your_password</code></pre>
+
+                <h5>Option B: REST API (Most flexible)</h5>
+                <pre><code>WEBSITE_API_URL=https://yourwebsite.com/api
+WEBSITE_API_KEY=your_api_key
+WEBSITE_API_SECRET=your_api_secret</code></pre>
+
+                <h5>Option C: WooCommerce (WordPress sites)</h5>
+                <pre><code>WOO_URL=https://yourstore.com
+WOO_CONSUMER_KEY=ck_xxxxxxxxxxxxx
+WOO_CONSUMER_SECRET=cs_xxxxxxxxxxxxx</code></pre>
+            </section>
+
+            <!-- Template System Section -->
+            <section id="template-system" class="content-section">
+                <h1>🎯 Template System - Complete!</h1>
+                <p>Your AI agent is now a <strong>reusable template system</strong>! Create agents for different shopkeepers in minutes.</p>
+
+                <h3>📁 What's Been Created</h3>
+                <h4>Core System (Don't Change)</h4>
+                <ul>
+                    <li><code>api_server.py</code> ← API server (works for all)</li>
+                    <li><code>whatsapp_integration.py</code> ← WhatsApp (works for all)</li>
+                    <li><code>auth_system.py</code> ← Security (works for all)</li>
+                    <li><code>agentic_ai.py</code> ← AI logic (works for all)</li>
+                    <li><code>migrate_db.py</code> ← Database setup</li>
+                    <li><code>chat_widget.html</code> ← Chat UI</li>
+                    <li><code>generate_agent.py</code> ← Agent generator ⭐</li>
+                </ul>
+
+                <h4>Template System (Customize This)</h4>
+                <ul>
+                    <li><code>template/README_TEMPLATE.md</code> ← How to use templates</li>
+                    <li><code>template/TEMPLATE_GUIDE.md</code> ← Step-by-step guide</li>
+                    <li><code>template/business_config.template.json</code> ← Business info template</li>
+                    <li><code>template/policies.template.json</code> ← Policies template</li>
+                    <li><code>template/products.template.json</code> ← Products template</li>
+                    <li><code>template/known_issues.template.json</code> ← Issues template</li>
+                </ul>
+
+                <h3>🚀 How to Create New Agent (3 Steps)</h3>
+                <h4>Step 1: Copy Template Files</h4>
+                <pre><code>mkdir "c:\Ai Agent\businesses\my_shop"
+copy "c:\Ai Agent\template\*.template.json" "c:\Ai Agent\businesses\my_shop\"
+cd businesses\my_shop
+ren business_config.template.json business_config.json
+ren policies.template.json policies.json
+ren products.template.json products.json
+ren known_issues.template.json known_issues.json</code></pre>
+
+                <h4>Step 2: Customize Your Business</h4>
+                <p>Edit these files with your business details:</p>
+                <ul>
+                    <li><code>business_config.json</code> - Name, industry, agent personality</li>
+                    <li><code>policies.json</code> - Return policy, warranty, shipping</li>
+                    <li><code>products.json</code> - Your product catalog</li>
+                    <li><code>known_issues.json</code> - Common product issues</li>
+                </ul>
+
+                <h4>Step 3: Generate Agent</h4>
+                <pre><code>python generate_agent.py --business "my_shop"</code></pre>
+                <p><strong>Done!</strong> Your custom agent is running! 🎉</p>
+            </section>
+
+            <!-- Test Results Section -->
+            <section id="test-results" class="content-section">
+                <h1>🎉 TESTING COMPLETE - AGENT IS PRODUCTION READY!</h1>
+                <h2>📊 Test Results: 94.7% Success Rate</h2>
+                <p><strong>Total Tests: 19</strong></p>
+                <ul>
+                    <li>✅ <strong>Passed: 18</strong></li>
+                    <li>❌ <strong>Failed: 1</strong> (user already exists - not a real issue)</li>
+                </ul>
+
+                <h3>✅ What Was Tested & Verified</h3>
+                <h4>🔐 Authentication System (100% Pass)</h4>
+                <ul>
+                    <li>✅ User registration works</li>
+                    <li>✅ Login with correct password works</li>
+                    <li>✅ Invalid password correctly rejected</li>
+                    <li>✅ JWT tokens generated and valid</li>
+                </ul>
+
+                <h4>💬 Conversation Capabilities (100% Pass)</h4>
+                <ul>
+                    <li>✅ Greets users naturally</li>
+                    <li>✅ Responds to introductions</li>
+                    <li>✅ Handles order inquiries</li>
+                    <li>✅ Maintains natural tone</li>
+                </ul>
+
+                <h4>🧠 RAG Knowledge System (100% Pass)</h4>
+                <ul>
+                    <li>✅ Return policy retrieval working</li>
+                    <li>✅ Warranty information accessible</li>
+                    <li>✅ Product knowledge available</li>
+                    <li>✅ Searches work correctly</li>
+                </ul>
+
+                <h4>⚠️ Edge Case Handling (100% Pass)</h4>
+                <ul>
+                    <li>✅ Empty messages handled gracefully</li>
+                    <li>✅ Long messages processed correctly</li>
+                    <li>✅ Gibberish input handled without errors</li>
+                    <li>✅ No crashes or exceptions</li>
+                </ul>
+            </section>
+
+            <!-- Troubleshooting Section -->
+            <section id="troubleshooting" class="content-section">
+                <h1>🔧 Troubleshooting Guide</h1>
+                <p>Common issues and solutions for your AI Customer Support system.</p>
+
+                <h2>🚨 Common Issues</h2>
+                <h3>1. "Module not found" Error</h3>
+                <p><strong>Problem</strong>: Python can't find required packages</p>
+                <p><strong>Solution</strong>:</p>
+                <pre><code>pip install -r requirements.txt --force-reinstall</code></pre>
+
+                <h3>2. "Port already in use" Error</h3>
+                <p><strong>Problem</strong>: Server can't start because port 8000 or 8001 is already in use</p>
+                <p><strong>Solution</strong>:</p>
+                <pre><code>netstat -ano | findstr :8000
+taskkill /PID &lt;PID&gt; /F</code></pre>
+
+                <h3>3. Database Errors</h3>
+                <h4>"No such table" Error</h4>
+                <p><strong>Solution</strong>:</p>
+                <pre><code>python migrate_db.py</code></pre>
+
+                <h4>"Database is locked" Error</h4>
+                <p><strong>Solution</strong>:</p>
+                <pre><code>rm customer_memory.db
+python migrate_db.py</code></pre>
+
+                <h3>4. Authentication Issues</h3>
+                <h4>"Invalid or expired token" Error</h4>
+                <p><strong>Solution</strong>: Login again to get new token</p>
+
+                <h4>"403 Forbidden" Error</h4>
+                <p><strong>Solution</strong>: Check user has permission for the resource</p>
+            </section>
+
+            <!-- Hosting Section -->
+            <section id="hosting" class="content-section">
+                <h1>🌐 Hosting Your Documentation Website</h1>
+                <p>You have <strong>2 documentation websites</strong> created:</p>
+
+                <h3>📁 Files</h3>
+                <ol>
+                    <li><strong><code>docs.html</code></strong> - Local navigation hub (use with VS Code)</li>
+                    <li><strong><code>documentation.html</code></strong> - Self-contained website (host online)</li>
+                </ol>
+
+                <h3>🚀 How to Host Online (FREE)</h3>
+                <h4>Option 1: GitHub Pages (Recommended)</h4>
+                <pre><code>git add documentation.html
+git commit -m "Add documentation website"
+git push</code></pre>
+                <p>Then enable GitHub Pages in repository settings.</p>
+
+                <h4>Option 2: Netlify Drop (Easiest)</h4>
+                <ol>
+                    <li>Go to <a href="https://app.netlify.com/drop">https://app.netlify.com/drop</a></li>
+                    <li>Drag <code>documentation.html</code> to the drop zone</li>
+                    <li>Get instant URL</li>
+                </ol>
+
+                <h4>Option 3: Vercel</h4>
+                <pre><code>npm i -g vercel
+vercel documentation.html</code></pre>
+
+                <h4>Option 4: Host with Your RimTyres App</h4>
+                <p>Access at: <code>https://rimtyres-ai-agent.onrender.com/documentation.html</code></p>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        function showSection(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => section.classList.remove('active'));
+
+            // Show selected section
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.add('active');
+            }
+
+            // Update sidebar active state
+            const sidebarLinks = document.querySelectorAll('.sidebar a');
+            sidebarLinks.forEach(link => link.classList.remove('active'));
+
+            const activeLink = document.querySelector(`.sidebar a[href="#${sectionId}"]`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+        }
+
+        function searchContent(query) {
+            const sections = document.querySelectorAll('.content-section');
+            const lowerQuery = query.toLowerCase();
+
+            sections.forEach(section => {
+                const text = section.textContent.toLowerCase();
+                const hasMatch = text.includes(lowerQuery);
+
+                if (query === '' || hasMatch) {
+                    section.style.display = 'block';
+                } else {
+                    section.style.display = 'none';
+                }
+
+                // Highlight matches
+                if (hasMatch && query !== '') {
+                    highlightText(section, query);
+                } else {
+                    removeHighlights(section);
+                }
+            });
+        }
+
+        function highlightText(element, query) {
+            const regex = new RegExp(`(${query})`, 'gi');
+            const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false);
+            let node;
+
+            while (node = walker.nextNode()) {
+                if (node.parentNode.className !== 'highlight') {
+                    node.parentNode.innerHTML = node.parentNode.innerHTML.replace(regex, '<span class="highlight">$1</span>');
+                }
+            }
+        }
+
+        function removeHighlights(element) {
+            const highlights = element.querySelectorAll('.highlight');
+            highlights.forEach(highlight => {
+                highlight.outerHTML = highlight.innerHTML;
+            });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            showSection('readme');
+        });
+    </script>
+</body>
+</html></content>
+<parameter name="filePath">c:\Ai Agent\proper_docs.html

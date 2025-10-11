@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  # Main API Server
+  api-server:
+    build: .
+    container_name: support-api
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+    volumes:
+      - ./data:/app/data
+      - ./customer_memory.db:/app/customer_memory.db
+    restart: unless-stopped
+    networks:
+      - support-network
+
+  # WhatsApp Integration Server
+  whatsapp-server:
+    build: .
+    container_name: support-whatsapp
+    ports:
+      - "8001:8001"
+    environment:
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
+      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
+      - TWILIO_WHATSAPP_NUMBER=${TWILIO_WHATSAPP_NUMBER}
+    command: uvicorn whatsapp_integration:app --host 0.0.0.0 --port 8001
+    volumes:
+      - ./data:/app/data
+      - ./customer_memory.db:/app/customer_memory.db
+    restart: unless-stopped
+    networks:
+      - support-network
+
+  # Nginx Reverse Proxy (Optional)
+  nginx:
+    image: nginx:alpine
+    container_name: support-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./chat_widget.html:/usr/share/nginx/html/index.html:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - api-server
+      - whatsapp-server
+    restart: unless-stopped
+    networks:
+      - support-network
+
+networks:
+  support-network:
+    driver: bridge
+
+volumes:
+  data:
