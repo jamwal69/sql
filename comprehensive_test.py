@@ -23,9 +23,9 @@ class ComprehensiveTestSuite:
     """Complete testing suite for the AI agent"""
     
     def __init__(self):
-        self.api_key = os.getenv("OPENROUTER_API_KEY")
+        self.api_key = os.getenv("GEMINI_API_KEY")
         if not self.api_key:
-            print("❌ ERROR: OPENROUTER_API_KEY not found in environment")
+            print("❌ ERROR: GEMINI_API_KEY not found in environment")
             print("Please set it in .env file")
             sys.exit(1)
         

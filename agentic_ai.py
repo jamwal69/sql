@@ -8,9 +8,17 @@ TRUE AGENTIC AI - Natural Conversational Customer Support
 
 import os
 import json
+import logging
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 import google.generativeai as genai
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 # Load environment
 from load_env import load_env
@@ -34,6 +42,10 @@ class AgenticAI:
         genai.configure(api_key=api_key)
         self.model = genai.GenerativeModel('gemini-2.5-flash')
         self.rag = RAGKnowledgeBase()
+        
+        # Configuration constants
+        self.MAX_CONVERSATION_HISTORY = 10  # Only keep last 10 messages for context
+        self.MAX_CONVERSATION_LENGTH = 50   # Max total messages before cleanup
         
         # Conversation memory (simple in-memory for now)
         self.conversations = {}
@@ -100,12 +112,20 @@ Be Emma. Be human. Be intelligent. Go!"""
         session_id = customer_name or "guest"
         if session_id not in self.conversations:
             self.conversations[session_id] = []
+            logger.info(f"New conversation started for session: {session_id}")
+        
+        # Cleanup old conversations if too long (prevent memory issues)
+        if len(self.conversations[session_id]) > self.MAX_CONVERSATION_LENGTH:
+            # Keep only the most recent messages
+            logger.info(f"Cleaning up conversation for {session_id}: {len(self.conversations[session_id])} messages")
+            self.conversations[session_id] = self.conversations[session_id][-self.MAX_CONVERSATION_LENGTH:]
         
         # Add user message
         self.conversations[session_id].append({
             "role": "user",
             "content": message
         })
+        logger.debug(f"User message added for {session_id}: {message[:50]}...")
         
         # Build context naturally
         messages = [{"role": "system", "content": self.system_prompt}]
@@ -115,9 +135,12 @@ Be Emma. Be human. Be intelligent. Go!"""
             profile = self.customer_profiles[customer_name]
             context = f"\n[You know this customer: {profile.get('name')}, {profile.get('loyalty_tier')} member, has {profile.get('total_orders')} orders]"
             messages[0]["content"] += context
+            logger.debug(f"Customer profile added for {customer_name}")
         
-        # Add conversation history
-        messages.extend(self.conversations[session_id])
+        # Add conversation history (only recent messages to save tokens)
+        recent_conversation = self.conversations[session_id][-self.MAX_CONVERSATION_HISTORY:]
+        messages.extend(recent_conversation)
+        logger.debug(f"Using {len(recent_conversation)} messages for context")
         
         # Call LLM with tools
         response = self._think_and_respond(messages, session_id)
@@ -127,13 +150,14 @@ Be Emma. Be human. Be intelligent. Go!"""
             "role": "assistant",
             "content": response
         })
+        logger.info(f"Response generated for {session_id}")
         
         return response
     
     def _think_and_respond(self, messages: List[Dict], session_id: str) -> str:
         """
         Let the AI think autonomously using Gemini
-        Simple version without complex tool calling for now
+        Improved error handling and safety checks
         """
         
         # Extract conversation history
@@ -147,273 +171,40 @@ Be Emma. Be human. Be intelligent. Go!"""
                 conversation_text += f"Emma: {msg['content']}\n"
         
         try:
-            # Use Gemini to generate response
-            response = self.model.generate_content(conversation_text)
-            return response.text
-        except Exception as e:
-            return f"Hey, I'm experiencing a technical hiccup: {str(e)}. Let me get that sorted out!"
-    
-    def _get_tools(self) -> List[Dict]:
-        """Define tools the AI can use autonomously"""
-        return [
-            {
-                "type": "function",
-                "function": {
-                    "name": "intelligent_search",
-                    "description": "Search for any information - orders, policies, products, issues. Use this when you need to look something up.",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "query": {
-                                "type": "string",
-                                "description": "What to search for - be natural and specific"
-                            },
-                            "search_type": {
-                                "type": "string",
-                                "enum": ["order", "policy", "product", "customer", "issue", "auto"],
-                                "description": "Type of search, or 'auto' to let me figure it out"
-                            }
-                        },
-                        "required": ["query"]
-                    }
-                }
-            },
-            {
-                "type": "function",
-                "function": {
-                    "name": "take_action",
-                    "description": "Take an action for the customer - initiate return, process refund, create ticket, etc.",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "action": {
-                                "type": "string",
-                                "enum": ["return", "refund", "ticket", "adjust_price", "expedite", "waive_fee"],
-                                "description": "What action to take"
-                            },
-                            "details": {
-                                "type": "object",
-                                "description": "Relevant details for the action"
-                            }
-                        },
-                        "required": ["action", "details"]
-                    }
-                }
-            },
-            {
-                "type": "function",
-                "function": {
-                    "name": "identify_customer",
-                    "description": "Figure out who the customer is from context clues (name, order number, email, etc.)",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "clue": {
-                                "type": "string",
-                                "description": "Any identifying information from the conversation"
-                            }
-                        },
-                        "required": ["clue"]
-                    }
-                }
-            }
-        ]
-    
-    def _execute_tool(self, tool_name: str, args: Dict, session_id: str) -> Dict:
-        """Execute tool intelligently"""
-        
-        if tool_name == "intelligent_search":
-            return self._intelligent_search(args.get("query"), args.get("search_type", "auto"))
-        
-        elif tool_name == "identify_customer":
-            return self._identify_customer(args.get("clue"), session_id)
-        
-        elif tool_name == "take_action":
-            return self._take_action(args.get("action"), args.get("details"))
-        
-        return {"error": "Unknown tool"}
-    
-    def _intelligent_search(self, query: str, search_type: str = "auto") -> Dict:
-        """
-        Smart search - figures out what to search and where
-        No rigid categories - just intelligent lookup
-        """
-        query_lower = query.lower()
-        
-        # Auto-detect search type if needed
-        if search_type == "auto":
-            if "order" in query_lower or "ord-" in query_lower:
-                search_type = "order"
-            elif any(word in query_lower for word in ["policy", "return", "refund", "warranty", "shipping"]):
-                search_type = "policy"
-            elif any(word in query_lower for word in ["product", "spec", "work", "compatible"]):
-                search_type = "product"
-            elif "issue" in query_lower or "problem" in query_lower or "bug" in query_lower:
-                search_type = "issue"
-        
-        results = {"search_type": search_type, "query": query}
-        
-        # Search orders
-        if search_type == "order":
-            # Extract order ID if present
-            import re
-            order_match = re.search(r'ORD-\d+-\d+', query.upper())
-            if order_match:
-                order_id = order_match.group(0)
-                order = get_order_by_id(order_id)
-                if order:
-                    results["found"] = True
-                    results["order"] = order
-                    results["type"] = "order_details"
-                    return results
+            logger.debug(f"Calling Gemini API for session {session_id}")
+            # Use Gemini to generate response with safety settings
+            response = self.model.generate_content(
+                conversation_text,
+                generation_config=genai.types.GenerationConfig(
+                    temperature=0.7,
+                    max_output_tokens=1024,
+                ),
+            )
             
-            # Try to find orders by customer name/description
-            for order in ORDERS:
-                if any(term in json.dumps(order).lower() for term in query_lower.split()):
-                    results["found"] = True
-                    results["orders"] = [order]
-                    return results
-        
-        # Search policies
-        if search_type == "policy":
-            policy_results = self.rag.search_policies(query)
-            if policy_results:
-                results["found"] = True
-                results["policies"] = policy_results
-                return results
-        
-        # Search products
-        if search_type == "product":
-            product_results = self.rag.search_product_knowledge(query)
-            if product_results:
-                results["found"] = True
-                results["products"] = product_results
+            # Check if response is valid
+            if response and hasattr(response, 'text') and response.text:
+                logger.debug(f"Successfully got response from Gemini for {session_id}")
+                return response.text
+            elif response and response.candidates:
+                # Try to extract text from candidates
+                logger.debug(f"Extracting text from candidates for {session_id}")
+                return response.candidates[0].content.parts[0].text
+            else:
+                logger.warning(f"Empty response from Gemini for {session_id}")
+                return "I'm having trouble processing that right now. Could you rephrase your question?"
                 
-                # Also check known issues proactively
-                for product in product_results:
-                    issues = self.rag.get_known_issues(product["product_name"], "active")
-                    if issues:
-                        results["known_issues"] = issues
-                
-                return results
-        
-        # Search known issues
-        if search_type == "issue":
-            issues = self.rag.get_known_issues(query, "active")
-            if issues:
-                results["found"] = True
-                results["issues"] = issues
-                return results
-        
-        results["found"] = False
-        results["message"] = "Couldn't find specific info, but I can help you directly"
-        return results
-    
-    def _identify_customer(self, clue: str, session_id: str) -> Dict:
-        """
-        Figure out who the customer is from any clue
-        """
-        clue_lower = clue.lower()
-        
-        # Check if we already know them
-        if session_id in self.customer_profiles:
-            return {
-                "identified": True,
-                "profile": self.customer_profiles[session_id],
-                "source": "session"
-            }
-        
-        # Try to match from our database
-        for profile in CUSTOMER_PROFILES:
-            if (profile["name"].lower() in clue_lower or
-                profile["email"].lower() in clue_lower or
-                profile["customer_id"].lower() in clue_lower):
-                
-                # Save for session
-                self.customer_profiles[session_id] = profile
-                
-                return {
-                    "identified": True,
-                    "profile": profile,
-                    "source": "database"
-                }
-        
-        # Check orders for clues
-        for order in ORDERS:
-            if order["order_id"].lower() in clue_lower:
-                customer_id = order["customer_id"]
-                profile = get_customer_profile(customer_id)
-                if profile:
-                    self.customer_profiles[session_id] = profile
-                    return {
-                        "identified": True,
-                        "profile": profile,
-                        "source": "order_lookup"
-                    }
-        
-        return {
-            "identified": False,
-            "message": "I can help you without needing to look you up in the system"
-        }
-    
-    def _take_action(self, action: str, details: Dict) -> Dict:
-        """Take action for customer"""
-        
-        action_id = f"{action.upper()}-{datetime.now().strftime('%Y%m%d%H%M%S')}"
-        
-        if action == "return":
-            return {
-                "success": True,
-                "action": "return_initiated",
-                "return_id": action_id,
-                "message": "Return initiated! I'll email you the label right away.",
-                "details": details
-            }
-        
-        elif action == "refund":
-            return {
-                "success": True,
-                "action": "refund_processed",
-                "refund_id": action_id,
-                "message": "Refund approved! You'll see it in 5-7 business days.",
-                "details": details
-            }
-        
-        elif action == "ticket":
-            return {
-                "success": True,
-                "action": "ticket_created",
-                "ticket_id": action_id,
-                "message": "I've created a priority ticket. Our specialist team will reach out within 24 hours.",
-                "details": details
-            }
-        
-        elif action == "adjust_price":
-            return {
-                "success": True,
-                "action": "price_adjusted",
-                "adjustment_id": action_id,
-                "message": "Price adjustment approved!",
-                "details": details
-            }
-        
-        elif action == "expedite":
-            return {
-                "success": True,
-                "action": "shipping_expedited",
-                "message": "I've expedited your shipment at no extra cost!",
-                "details": details
-            }
-        
-        elif action == "waive_fee":
-            return {
-                "success": True,
-                "action": "fee_waived",
-                "message": "Fee waived!",
-                "details": details
-            }
-        
-        return {"success": False, "message": "Couldn't complete that action"}
+        except Exception as e:
+            error_msg = str(e)
+            logger.error(f"Gemini API error for {session_id}: {error_msg}")
+            # Better error messages for common issues
+            if "API_KEY" in error_msg or "authentication" in error_msg.lower():
+                logger.error("Authentication error with Gemini API")
+                return "I'm having authentication issues. Please contact support."
+            elif "quota" in error_msg.lower() or "rate" in error_msg.lower():
+                logger.warning("Rate limit or quota exceeded")
+                return "I'm a bit overwhelmed right now. Can you try again in a moment?"
+            else:
+                return f"Hey, I'm experiencing a technical hiccup. Let me get that sorted out!"
 
 
 def main():

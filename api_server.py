@@ -13,7 +13,19 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel, EmailStr
 from typing import Optional, List
 import os
+import logging
 from datetime import datetime
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('agent.log'),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
 
 # Import our systems
 from auth_system import AuthSystem
@@ -27,14 +39,36 @@ security = HTTPBearer()
 
 # Load API key
 api_key = os.getenv("GEMINI_API_KEY")
-emma = AgenticAI(api_key) if api_key else None
+if not api_key:
+    logger.error("GEMINI_API_KEY environment variable not found!")
+    raise ValueError("❌ GEMINI_API_KEY environment variable is required! Please set it in .env file")
+logger.info("✅ Gemini API key loaded successfully")
 
-# CORS Configuration
+emma = AgenticAI(api_key)
+logger.info("✅ AI Agent initialized successfully")
+
+# CORS Configuration - Secure for production
+# For development, allow localhost. For production, update to your actual domain
+ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
+if ENVIRONMENT == "production":
+    allowed_origins = [
+        "https://yourdomain.com",  # Update with your actual domain
+        "https://www.yourdomain.com",
+    ]
+else:
+    # Development: allow localhost
+    allowed_origins = [
+        "http://localhost:3000",
+        "http://localhost:5000",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:5000",
+    ]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify your frontend domain
+    allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["*"],
 )
 
@@ -228,15 +262,31 @@ def chat(
     Send message to AI agent (authenticated)
     User can only access their own data
     """
-    if not emma:
-        raise HTTPException(status_code=503, detail="AI agent not configured")
+    # Input validation
+    if not data.message or not data.message.strip():
+        logger.warning(f"Empty message from user {user_info['user_id']}")
+        raise HTTPException(status_code=400, detail="Message cannot be empty")
     
-    # The agent will automatically filter data based on user's customer_id
-    # Pass user info to agent for security filtering
-    response = emma.chat(
-        message=data.message,
-        customer_name=user_info.get("customer_id")
-    )
+    if len(data.message) > 2000:
+        logger.warning(f"Message too long from user {user_info['user_id']}: {len(data.message)} chars")
+        raise HTTPException(status_code=400, detail="Message too long. Maximum 2000 characters allowed")
+    
+    if len(data.message) < 1:
+        raise HTTPException(status_code=400, detail="Message too short")
+    
+    logger.info(f"Chat request from user {user_info['user_id']}: {data.message[:50]}...")
+    
+    try:
+        # The agent will automatically filter data based on user's customer_id
+        # Pass user info to agent for security filtering
+        response = emma.chat(
+            message=data.message,
+            customer_name=user_info.get("customer_id")
+        )
+        logger.info(f"Chat response sent to user {user_info['user_id']}")
+    except Exception as e:
+        logger.error(f"Error in chat for user {user_info['user_id']}: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to process message")
     
     # Log the interaction
     auth_system._log_action(
