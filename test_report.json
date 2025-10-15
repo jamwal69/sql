@@ -1,0 +1,114 @@
+{
+  "timestamp": "2025-10-15T13:34:12.482674",
+  "total_tests": 26,
+  "passed": 25,
+  "failed": 1,
+  "success_rate": "96.2%",
+  "results": [
+    {
+      "test": "API key exists in environment",
+      "status": "PASS"
+    },
+    {
+      "test": "Can import agentic_ai module",
+      "status": "PASS"
+    },
+    {
+      "test": "Can import api_server module",
+      "status": "PASS"
+    },
+    {
+      "test": "AI Agent initializes successfully",
+      "status": "PASS"
+    },
+    {
+      "test": "Normal message works",
+      "status": "PASS"
+    },
+    {
+      "test": "Empty message handling",
+      "status": "PASS"
+    },
+    {
+      "test": "Very long message (2000 chars)",
+      "status": "PASS"
+    },
+    {
+      "test": "Message with special characters",
+      "status": "PASS"
+    },
+    {
+      "test": "Message with emojis",
+      "status": "PASS"
+    },
+    {
+      "test": "Message with multiple languages",
+      "status": "PASS"
+    },
+    {
+      "test": "Conversation history is maintained",
+      "status": "PASS"
+    },
+    {
+      "test": "Multiple sessions are separated",
+      "status": "PASS"
+    },
+    {
+      "test": "Conversation cleanup after MAX_LENGTH",
+      "status": "FAIL",
+      "error": ""
+    },
+    {
+      "test": "Only recent messages sent to API (token optimization)",
+      "status": "PASS"
+    },
+    {
+      "test": "Handles invalid session gracefully",
+      "status": "PASS"
+    },
+    {
+      "test": "Handles None message",
+      "status": "PASS"
+    },
+    {
+      "test": "Concurrent requests don't interfere",
+      "status": "PASS"
+    },
+    {
+      "test": "Response is not empty",
+      "status": "PASS"
+    },
+    {
+      "test": "Response handles complex queries",
+      "status": "PASS"
+    },
+    {
+      "test": "Response maintains conversation context",
+      "status": "PASS"
+    },
+    {
+      "test": "Rapid fire messages",
+      "status": "PASS"
+    },
+    {
+      "test": "Very short messages",
+      "status": "PASS"
+    },
+    {
+      "test": "Message with only whitespace",
+      "status": "PASS"
+    },
+    {
+      "test": "Message with line breaks",
+      "status": "PASS"
+    },
+    {
+      "test": "Repeated identical messages",
+      "status": "PASS"
+    },
+    {
+      "test": "Log file is created",
+      "status": "PASS"
+    }
+  ]
+}
